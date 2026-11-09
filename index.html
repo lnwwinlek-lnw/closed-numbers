@@ -378,7 +378,7 @@
           </div>
 
           <!-- Content: Numbers List Grouped -->
-          <div id="cardContent" style="margin: 8px 0;" class="space-y-2.5 flex-grow">
+          <div id="cardContent" style="margin: 8px 0;" class="flex-grow">
             <!-- Dynamic Category Content Generated Here -->
           </div>
 
@@ -612,7 +612,7 @@
       });
     }
 
-    // Render Preview Card
+    // Render Preview Card (Using Table Layout for 100% html2canvas Compatibility)
     function renderCard() {
       const title = document.getElementById('inputTitle').value || 'แจ้งเลขปิดรับ';
       const note = document.getElementById('inputFooterNote').value;
@@ -645,20 +645,26 @@
 
       Object.keys(grouped).forEach(type => {
         const groupWrapper = document.createElement('div');
-        groupWrapper.style.marginBottom = "8px";
+        groupWrapper.style.marginBottom = "10px";
 
-        let itemsHTML = grouped[type].map(it => {
+        let rowsHTML = grouped[type].map(it => {
           const numList = it.numbers.split(' ').filter(n => n).map(n => 
             `<span style="display: inline-block; padding: 2px 10px; background: rgba(0,0,0,0.4); border-radius: 6px; font-weight: 900; font-family: 'Kanit', sans-serif; font-size: 16px; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.1); margin-right: 4px;">${n}</span>`
           ).join('');
 
+          const noteHTML = it.note 
+            ? `<td style="text-align: right; white-space: nowrap; vertical-align: middle;"><span style="font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 4px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); letter-spacing: 0.5px; display: inline-block;">${it.note}</span></td>`
+            : `<td style="display: none;"></td>`;
+
           return `
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 10px; margin-bottom: 6px;" class="badge-box shadow-sm">
-              <div style="display: flex; align-items: center; flex-wrap: wrap;">
-                ${numList}
-              </div>
-              ${it.note ? `<span style="font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); letter-spacing: 0.5px;">${it.note}</span>` : ''}
-            </div>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px;" class="badge-box" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="padding: 8px 12px; vertical-align: middle;">
+                  <div style="display: inline-block;">${numList}</div>
+                </td>
+                ${noteHTML}
+              </tr>
+            </table>
           `;
         }).join('');
 
@@ -668,7 +674,7 @@
             <h3 style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9; margin: 0;">${type}</h3>
           </div>
           <div>
-            ${itemsHTML}
+            ${rowsHTML}
           </div>
         `;
 
@@ -691,7 +697,6 @@
       const cardElement = document.getElementById('captureCard');
       showToast('กำลังประมวลผลรูปภาพเพื่อคัดลอก...');
 
-      // หน่วงเวลาเล็กน้อยเพื่อให้เบราว์เซอร์เรนเดอร์สไตล์ inline ครบถ้วน
       setTimeout(() => {
         html2canvas(cardElement, {
           scale: 3,
